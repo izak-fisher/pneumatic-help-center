@@ -1,9 +1,9 @@
 title: Pneumatic Help Center
-description: Documentation and guides for Pneumatic workflow management
-theme: jekyll-theme-cayman
+description: Advice and answers from the Pneumatic Support Team
+url: https://izak-fisher.github.io
+baseurl: /pneumatic-help-center
 markdown: kramdown
 
-# Treat .md files as pages
 defaults:
   - scope:
       path: ""

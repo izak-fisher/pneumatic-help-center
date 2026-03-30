@@ -7,4 +7,6 @@ description: "Frequently asked questions"
 
 Frequently asked questions
 
-- [Zooming with the Founder](zooming-with-the-founder.md)
+<ul class="article-list">
+<li><a href="zooming-with-the-founder.html">Zooming with the Founder</a></li>
+</ul>

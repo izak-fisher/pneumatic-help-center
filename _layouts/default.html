@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{{ page.description | default: site.description }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="{{ '/' | relative_url }}">
+      <img class="logo" src="https://downloads.intercomcdn.com/i/o/275327/fab1568b06ea2d0e7113f3f9/4ebb0cfeae85b53d6b859e0229893dd5.png" alt="{{ site.title }}">
+    </a>
+    <h1>Advice and answers from the Pneumatic Support Team</h1>
+    <div class="search-box">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search-input" placeholder="Search for articles…">
+    </div>
+  </header>
+
+  {% if page.collection or page.section %}
+  <nav class="breadcrumbs">
+    <a href="{{ '/' | relative_url }}">All Collections</a>
+    {% if page.collection %}
+      <span class="sep">›</span>
+      <a href="{{ '/' | relative_url }}{{ page.collection | slugify }}/index.html">{{ page.collection }}</a>
+    {% endif %}
+    {% if page.section %}
+      <span class="sep">›</span>
+      <span>{{ page.section }}</span>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  <main class="content-wrapper {% if page.slug %}article-body{% endif %}">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="https://pneumatic.app/pricing">Pricing</a>
+      <a href="https://api-docs.pneumatic.app/">API Documentation</a>
+      <a href="https://pneumatic.app/terms">Terms of Use</a>
+      <a href="https://pneumatic.app/privacy">Privacy</a>
+    </div>
+    <div>Pneumatic &copy; {{ 'now' | date: "%Y" }}</div>
+  </footer>
+
+  <script>
+    // Simple client-side search — filters article links on the current page
+    (function() {
+      var input = document.getElementById('search-input');
+      if (!input) return;
+      input.addEventListener('input', function() {
+        var q = this.value.toLowerCase();
+        document.querySelectorAll('.article-list a, .collection-card').forEach(function(el) {
+          var text = el.textContent.toLowerCase();
+          el.closest('li, a').style.display = text.includes(q) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>

@@ -7,5 +7,7 @@ description: "Basic concepts of the product"
 
 Basic concepts of the product
 
-- [User Types in Pneumatic](user-types-in-pneumatic.md)
-- [Why You Need Pneumatic](why-you-need-pneumatic.md)
+<ul class="article-list">
+<li><a href="user-types-in-pneumatic.html">User Types in Pneumatic</a></li>
+<li><a href="why-you-need-pneumatic.html">Why You Need Pneumatic</a></li>
+</ul>

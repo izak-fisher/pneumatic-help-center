@@ -1,0 +1,11 @@
+title: Pneumatic Help Center
+description: Documentation and guides for Pneumatic workflow management
+theme: jekyll-theme-cayman
+markdown: kramdown
+
+# Treat .md files as pages
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

@@ -14,10 +14,10 @@
       <img class="logo" src="https://downloads.intercomcdn.com/i/o/275327/fab1568b06ea2d0e7113f3f9/4ebb0cfeae85b53d6b859e0229893dd5.png" alt="{{ site.title }}">
     </a>
     <h1>Advice and answers from the Pneumatic Support Team</h1>
-    <div class="search-box">
+    <form class="search-box" onsubmit="return false;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="search-input" placeholder="Search for articles…">
-    </div>
+    </form>
   </header>
 
   {% if page.collection or page.section %}
@@ -66,17 +66,13 @@
 
       if (!input) return;
 
-      // Load search index on first focus
-      input.addEventListener('focus', function() {
-        if (searchIndex) return;
-        fetch('{{ "/search.json" | relative_url }}')
-          .then(function(r) { return r.json(); })
-          .then(function(data) { searchIndex = data; });
-      });
+      // Load search index eagerly
+      fetch('{{ "/search.json" | relative_url }}')
+        .then(function(r) { return r.json(); })
+        .then(function(data) { searchIndex = data; });
 
-      input.addEventListener('input', function() {
-        clearTimeout(debounceTimer);
-        var q = this.value.trim().toLowerCase();
+      function doSearch() {
+        var q = input.value.trim().toLowerCase();
 
         if (!q) {
           resultsDiv.style.display = 'none';
@@ -84,39 +80,49 @@
           return;
         }
 
-        debounceTimer = setTimeout(function() {
-          if (!searchIndex) return;
+        if (!searchIndex) return;
 
-          var terms = q.split(/\s+/);
-          var matches = searchIndex.filter(function(item) {
-            var text = (item.title + ' ' + item.collection + ' ' + item.section + ' ' + item.content).toLowerCase();
-            return terms.every(function(t) { return text.includes(t); });
+        var terms = q.split(/\s+/);
+        var matches = searchIndex.filter(function(item) {
+          var text = (item.title + ' ' + item.collection + ' ' + item.section + ' ' + item.content).toLowerCase();
+          return terms.every(function(t) { return text.includes(t); });
+        });
+
+        resultsList.innerHTML = '';
+        if (matches.length > 0) {
+          noResults.style.display = 'none';
+          matches.forEach(function(item) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.href = item.url;
+            a.textContent = item.title;
+            if (item.collection) {
+              var span = document.createElement('span');
+              span.style.cssText = 'color:#737373; font-size:0.8rem; margin-left:8px;';
+              span.textContent = item.collection;
+              a.appendChild(span);
+            }
+            li.appendChild(a);
+            resultsList.appendChild(li);
           });
+        } else {
+          noResults.style.display = '';
+        }
 
-          resultsList.innerHTML = '';
-          if (matches.length > 0) {
-            noResults.style.display = 'none';
-            matches.forEach(function(item) {
-              var li = document.createElement('li');
-              var a = document.createElement('a');
-              a.href = item.url;
-              a.textContent = item.title;
-              if (item.collection) {
-                var span = document.createElement('span');
-                span.style.cssText = 'color:#737373; font-size:0.8rem; margin-left:8px;';
-                span.textContent = item.collection;
-                a.appendChild(span);
-              }
-              li.appendChild(a);
-              resultsList.appendChild(li);
-            });
-          } else {
-            noResults.style.display = '';
-          }
+        resultsDiv.style.display = '';
+        pageContent.style.display = 'none';
+      }
 
-          resultsDiv.style.display = '';
-          pageContent.style.display = 'none';
-        }, 200);
+      input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(doSearch, 200);
+      });
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          clearTimeout(debounceTimer);
+          doSearch();
+        }
       });
     })();
   </script>

@@ -34,7 +34,13 @@
   </nav>
   {% endif %}
 
-  <main class="content-wrapper {% if page.slug %}article-body{% endif %}">
+  <div id="search-results" class="content-wrapper" style="display:none;">
+    <h2>Search Results</h2>
+    <ul class="article-list" id="search-results-list"></ul>
+    <p id="search-no-results" style="display:none; color:#737373;">No articles found.</p>
+  </div>
+
+  <main id="page-content" class="content-wrapper {% if page.slug %}article-body{% endif %}">
     {{ content }}
   </main>
 
@@ -49,16 +55,68 @@
   </footer>
 
   <script>
-    // Simple client-side search — filters article links on the current page
     (function() {
       var input = document.getElementById('search-input');
+      var resultsDiv = document.getElementById('search-results');
+      var resultsList = document.getElementById('search-results-list');
+      var noResults = document.getElementById('search-no-results');
+      var pageContent = document.getElementById('page-content');
+      var searchIndex = null;
+      var debounceTimer = null;
+
       if (!input) return;
+
+      // Load search index on first focus
+      input.addEventListener('focus', function() {
+        if (searchIndex) return;
+        fetch('{{ "/search.json" | relative_url }}')
+          .then(function(r) { return r.json(); })
+          .then(function(data) { searchIndex = data; });
+      });
+
       input.addEventListener('input', function() {
-        var q = this.value.toLowerCase();
-        document.querySelectorAll('.article-list a, .collection-card').forEach(function(el) {
-          var text = el.textContent.toLowerCase();
-          el.closest('li, a').style.display = text.includes(q) ? '' : 'none';
-        });
+        clearTimeout(debounceTimer);
+        var q = this.value.trim().toLowerCase();
+
+        if (!q) {
+          resultsDiv.style.display = 'none';
+          pageContent.style.display = '';
+          return;
+        }
+
+        debounceTimer = setTimeout(function() {
+          if (!searchIndex) return;
+
+          var terms = q.split(/\s+/);
+          var matches = searchIndex.filter(function(item) {
+            var text = (item.title + ' ' + item.collection + ' ' + item.section + ' ' + item.content).toLowerCase();
+            return terms.every(function(t) { return text.includes(t); });
+          });
+
+          resultsList.innerHTML = '';
+          if (matches.length > 0) {
+            noResults.style.display = 'none';
+            matches.forEach(function(item) {
+              var li = document.createElement('li');
+              var a = document.createElement('a');
+              a.href = item.url;
+              a.textContent = item.title;
+              if (item.collection) {
+                var span = document.createElement('span');
+                span.style.cssText = 'color:#737373; font-size:0.8rem; margin-left:8px;';
+                span.textContent = item.collection;
+                a.appendChild(span);
+              }
+              li.appendChild(a);
+              resultsList.appendChild(li);
+            });
+          } else {
+            noResults.style.display = '';
+          }
+
+          resultsDiv.style.display = '';
+          pageContent.style.display = 'none';
+        }, 200);
       });
     })();
   </script>

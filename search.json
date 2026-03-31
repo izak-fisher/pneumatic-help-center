@@ -1,12 +1,12 @@
 ---
 layout: null
 ---
-{% assign articles = site.pages | where_exp: "p", "p.slug and p.title" %}[
-{% for item in articles %}  {
-    "title": {{ item.title | jsonify }},
-    "url": {{ item.url | relative_url | jsonify }},
-    "collection": {{ item.collection | default: "" | jsonify }},
-    "section": {{ item.section | default: "" | jsonify }},
-    "content": {{ item.content | strip_html | truncatewords: 200 | jsonify }}
-  }{% unless forloop.last %},{% endunless %}
-{% endfor %}]
+[{% assign first = true %}{% for p in site.pages %}{% if p.slug and p.title %}{% if first == false %},{% endif %}{% assign first = false %}
+  {
+    "title": {{ p.title | jsonify }},
+    "url": {{ p.url | relative_url | jsonify }},
+    "collection": {{ p.collection | default: "" | jsonify }},
+    "section": {{ p.section | default: "" | jsonify }},
+    "content": {{ p.content | strip_html | truncatewords: 200 | jsonify }}
+  }{% endif %}{% endfor %}
+]
